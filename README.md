@@ -3,41 +3,59 @@
 Bài test tuyển dụng Full-stack .NET + React
 
 ## Chức năng chính
-- Màn hình POS: hiển thị sản phẩm, thêm vào giỏ, tính tổng tiền, thanh toán
-- Màn hình Realtime Orders: hiển thị danh sách đơn hàng, tự động cập nhật qua SignalR (không reload)
-- Backend: ASP.NET Core Web API + SignalR + in-memory storage
+- **Màn hình POS**: hiển thị danh sách sản phẩm, thêm vào giỏ hàng, tính tổng tiền, nút Thanh toán (POST order, thông báo thành công, clear giỏ).
+- **Màn hình Realtime Orders**: hiển thị danh sách đơn hàng, tự động cập nhật realtime qua SignalR (không reload).
+- Backend sử dụng in-memory storage (seed sẵn sản phẩm).
 
-## Cách chạy local
+## Công nghệ
+- Backend: ASP.NET Core Web API + SignalR
+- Frontend: React (Vite) + React Router + @microsoft/signalr + axios
+- Docker: multi-stage build cho cả backend và frontend
 
-### Backend (.NET)
-1. Mở terminal tại folder `Pos.Api`
-2. Chạy:
-   ```bash
-   dotnet restore
-   dotnet run
+### Backend
 
-API chạy tại https://localhost:7191 (port có thể thay đổi)
-Swagger: mở https://localhost:7191/swagger để test API
+cd Pos.Api
+dotnet restore
+dotnet run
 
+API chạy tại https://localhost:7191
+Swagger: https://localhost:7191/swagger
 
-Frontend (React + Vite)
-
-Mở terminal tại folder pos-frontend
-Chạy:Bashnpm install
+Frontend
+cd pos-frontend
+npm install
 npm run dev
+
 Mở http://localhost:5173
 
-Dockerfile
-Build & run backend
-Bashcd Pos.Api
-docker build -t pos-api .
-docker run -p 8080:80 pos-api
-Build & run frontend
-Bashcd pos-frontend
-docker build -t pos-frontend .
-docker run -p 3000:80 pos-frontend
+Cách chạy bằng Docker (khuyến khích để test production)
+Backend
+cd Pos.Api
+docker build -t pos-api:latest .
+docker run -d -p 8080:80 --name pos-api pos-api:latest
+
+Swagger: http://localhost:8080/swagger
+
+Frontend
+cd pos-frontend
+docker build -t pos-frontend:latest .
+docker run -d -p 3000:80 --name pos-frontend pos-frontend:latest
+
+Mở http://localhost:3000
+
+Test full flow Docker
+
+Run backend Docker (-p 8080:80)
+Run frontend Docker (-p 3000:80)
+Frontend production tự động gọi backend tại http://localhost:8080
+
+Stop container
+docker stop pos-api pos-frontend
+docker rm pos-api pos-frontend
 Lưu ý
 
-Backend dùng in-memory → dữ liệu mất khi restart
-CORS đã config cho localhost:5173
-Realtime sử dụng SignalR (push từ server khi có đơn mới)
+Backend dùng in-memory → dữ liệu mất khi restart container.
+CORS đã config cho localhost:5173 (dev) và production Docker.
+Realtime sử dụng SignalR push từ backend khi có đơn mới.
+
+Cảm ơn đã xem repo!
